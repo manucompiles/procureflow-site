@@ -39,6 +39,12 @@
   .preview{display:none;background:var(--card);border:1px dashed var(--rule);border-radius:10px;
     padding:8px 12px;font-size:13px;color:var(--hint);margin-bottom:12px}
   .preview.on{display:block}
+  /* demo-only: muted scenario chips that prefill the form (never on a real org's page) */
+  .presets{margin:0 0 12px;font-size:12px;color:var(--hint)}
+  .presets span{display:block;margin-bottom:2px}
+  .presets button{background:transparent;border:1px solid var(--rule);color:var(--hint);border-radius:14px;
+    font:12px system-ui,sans-serif;padding:4px 9px;margin:4px 4px 0 0;cursor:pointer}
+  .presets button:hover{color:var(--ink)}
   form{display:grid;gap:12px}
   .field{background:var(--card);border-radius:12px;padding:10px 12px 11px;display:grid;gap:4px}
   label{font-size:12.5px;color:var(--hint);letter-spacing:.02em}
@@ -65,6 +71,7 @@
   <h1>New order</h1>
   <p class="sub">Manu (test org) · one screen, then the bot checks what it can promise.</p>
   <div class="preview" id="preview">Design preview: outside Telegram this page shows what it would send instead of sending it.</div>
+  
 
   <form id="f" novalidate>
     <div class="field">
@@ -161,6 +168,24 @@
   due.min = new Date().toISOString().slice(0, 10);
 
   var form = document.getElementById("f"), err = document.getElementById("err");
+
+  // Demo presets (rendered only for demo orgs): tap to prefill, then submit
+  // as usual. "due" is days from today so the stories keep working.
+  var presets = document.querySelectorAll(".presets button");
+  for (var i = 0; i < presets.length; i++) {
+    presets[i].addEventListener("click", function () {
+      var p = JSON.parse(this.getAttribute("data-preset"));
+      form.customer.value = p.customer;
+      form.sku.value = p.sku;
+      form.qty.value = p.qty;
+      var when = new Date(); when.setDate(when.getDate() + (p.due || 7));
+      form.due.valueAsDate = when;
+      form.price.value = p.price == null ? "" : p.price;
+      form.tier.value = p.tier || "regular";
+      form.urgency.value = p.urgency || "normal";
+      err.textContent = "";
+    });
+  }
   form.addEventListener("submit", function (ev) {
     ev.preventDefault();
     var customer = form.customer.value.trim();
