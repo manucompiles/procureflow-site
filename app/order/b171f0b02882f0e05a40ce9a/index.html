@@ -139,9 +139,11 @@
   var inTelegram = !!(tg && tg.platform && tg.platform !== "unknown");
   if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
   if (!inTelegram) document.getElementById("preview").classList.add("on");
-  // What the container reports - visible so a failing client can be named.
+  // What the container reports, shown only when the page is opened with
+  // ?debug (a live-verification aid, never the customer's view).
   var dbg = document.getElementById("dbg");
-  function say(line) { dbg.textContent = (tg ? "platform=" + tg.platform + " v" + tg.version + " initData=" + (tg.initData ? tg.initData.length : 0) : "no Telegram object") + " · " + line; }
+  var debug = /[?&]debug/.test(location.search);
+  function say(line) { if (debug) dbg.textContent = (tg ? "platform=" + tg.platform + " v" + tg.version + " initData=" + (tg.initData ? tg.initData.length : 0) : "no Telegram object") + " · " + line; }
   say("ready");
 
   document.getElementById("copy").addEventListener("click", function () {
