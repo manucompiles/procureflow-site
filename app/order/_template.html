@@ -123,7 +123,10 @@
 <script>
 (function(){
   var tg = window.Telegram && window.Telegram.WebApp;
-  var inTelegram = !!(tg && tg.initData);
+  // A Mini App opened from a KEYBOARD button gets no initData on purpose
+  // (its channel back is sendData), so presence is judged by the platform
+  // the container reports, never by initData.
+  var inTelegram = !!(tg && tg.platform && tg.platform !== "unknown");
   if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
   if (!inTelegram) document.getElementById("preview").classList.add("on");
 
@@ -154,7 +157,17 @@
     document.getElementById("payload").textContent = json;
     document.getElementById("sent").classList.add("on");
     document.getElementById("go").disabled = true;
-    if (inTelegram) { try { tg.sendData(json); } catch (e) { err.textContent = "Could not send: " + e; document.getElementById("go").disabled = false; } }
+    if (inTelegram) {
+      try {
+        // sendData hands the payload to the bot and closes the Mini App;
+        // the explicit close is a belt-and-braces for clients that linger.
+        tg.sendData(json);
+        setTimeout(function () { try { tg.close(); } catch (e) {} }, 600);
+      } catch (e) {
+        err.textContent = "Could not send: " + e;
+        document.getElementById("go").disabled = false;
+      }
+    }
   });
 })();
 </script>
