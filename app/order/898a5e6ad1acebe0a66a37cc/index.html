@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New order · ProcureFlow Demo (Manish)</title>
+<meta name="robots" content="noindex">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  /* Telegram hands the app its theme as CSS variables; outside Telegram
+     (the design gate, a desktop browser) the fallbacks take over and
+     follow the system theme so the page never renders half-styled. */
+  :root{
+    --bg:var(--tg-theme-bg-color,#F2F4F7); --card:var(--tg-theme-secondary-bg-color,#FFFFFF);
+    --ink:var(--tg-theme-text-color,#101820); --hint:var(--tg-theme-hint-color,#6B7682);
+    --link:var(--tg-theme-link-color,#2A7FD5); --btn:var(--tg-theme-button-color,#D9480F);
+    --btn-ink:var(--tg-theme-button-text-color,#FFFFFF); --rule:rgba(128,128,128,.28);
+    --bad:#C0392B;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:var(--tg-theme-bg-color,#0F141A); --card:var(--tg-theme-secondary-bg-color,#182028);
+      --ink:var(--tg-theme-text-color,#E6EBEF); --hint:var(--tg-theme-hint-color,#8A95A0);
+      --btn:var(--tg-theme-button-color,#FF6A2B); --btn-ink:var(--tg-theme-button-text-color,#15100C);
+      --bad:#FF7B6B;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:var(--tg-theme-bg-color,#0F141A); --card:var(--tg-theme-secondary-bg-color,#182028);
+    --ink:var(--tg-theme-text-color,#E6EBEF); --hint:var(--tg-theme-hint-color,#8A95A0);
+    --btn:var(--tg-theme-button-color,#FF6A2B); --btn-ink:var(--tg-theme-button-text-color,#15100C);
+    --bad:#FF7B6B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:520px;margin:0 auto;padding:14px 14px 28px}
+  h1{font-size:20px;margin:6px 0 2px;letter-spacing:-.01em}
+  .sub{color:var(--hint);font-size:13.5px;margin:0 0 14px}
+  .preview{display:none;background:var(--card);border:1px dashed var(--rule);border-radius:10px;
+    padding:8px 12px;font-size:13px;color:var(--hint);margin-bottom:12px}
+  .preview.on{display:block}
+  /* demo-only: muted scenario chips that prefill the form (never on a real org's page) */
+  .presets{margin:0 0 12px;font-size:12px;color:var(--hint)}
+  .presets span{display:block;margin-bottom:2px}
+  .presets button{background:transparent;border:1px solid var(--rule);color:var(--hint);border-radius:14px;
+    font:12px system-ui,sans-serif;padding:4px 9px;margin:4px 4px 0 0;cursor:pointer}
+  .presets button:hover{color:var(--ink)}
+  form{display:grid;gap:12px}
+  .field{background:var(--card);border-radius:12px;padding:10px 12px 11px;display:grid;gap:4px}
+  label{font-size:12.5px;color:var(--hint);letter-spacing:.02em}
+  input,select{width:100%;border:0;background:transparent;color:var(--ink);font:17px/1.3 inherit;
+    padding:3px 0;outline:none;appearance:none;-webkit-appearance:none}
+  select{background-image:linear-gradient(45deg,transparent 50%,var(--hint) 50%),linear-gradient(135deg,var(--hint) 50%,transparent 50%);
+    background-position:calc(100% - 14px) 55%,calc(100% - 9px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:26px}
+  input::placeholder{color:var(--hint);opacity:.8}
+  .unit{display:flex;align-items:baseline;gap:8px}
+  .unit span{color:var(--hint);font-size:14px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field:focus-within{box-shadow:0 0 0 2px var(--link) inset}
+  .err{color:var(--bad);font-size:13px;min-height:1.2em}
+  button{margin-top:4px;background:var(--btn);color:var(--btn-ink);border:0;border-radius:12px;
+    font:600 17px/1 inherit;padding:16px;cursor:pointer}
+  button:disabled{opacity:.6;cursor:default}
+  .sent{display:none;background:var(--card);border-radius:12px;padding:14px;font-size:14.5px}
+  .sent.on{display:block}
+  .sent pre{margin:8px 0 0;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;color:var(--hint)}
+  :focus-visible{outline:2px solid var(--link);outline-offset:2px}
+</style>
+
+<div class="wrap">
+  <h1>New order</h1>
+  <p class="sub">ProcureFlow Demo (Manish) · one screen, then the bot checks what it can promise.</p>
+  <div class="preview" id="preview">Design preview: outside Telegram this page shows what it would send instead of sending it.</div>
+  <div class="presets"><span>demo scenarios · tap to prefill, then submit</span>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Gupta Builders&quot;, &quot;sku&quot;: &quot;CR-COIL&quot;, &quot;qty&quot;: 100, &quot;due&quot;: 6, &quot;price&quot;: 66500}'>Gupta · plenty in stock</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Sharma Constructions&quot;, &quot;sku&quot;: &quot;HR-COIL&quot;, &quot;qty&quot;: 150, &quot;due&quot;: 2, &quot;price&quot;: 56000, &quot;urgency&quot;: &quot;rush&quot;}'>Sharma rush · eats the floor</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Verma Infra&quot;, &quot;sku&quot;: &quot;HR-COIL&quot;, &quot;qty&quot;: 300, &quot;due&quot;: 6, &quot;price&quot;: 55500, &quot;tier&quot;: &quot;key&quot;}'>Verma · relies on a truck</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Delhi Metro Rail&quot;, &quot;sku&quot;: &quot;MS-ANGLE&quot;, &quot;qty&quot;: 100, &quot;due&quot;: 14, &quot;price&quot;: 64000, &quot;tier&quot;: &quot;priority&quot;}'>Delhi Metro · short, a mill can land it</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Sharma Constructions&quot;, &quot;sku&quot;: &quot;TMT-12&quot;, &quot;qty&quot;: 25, &quot;due&quot;: 1, &quot;price&quot;: 57000, &quot;urgency&quot;: &quot;rush&quot;}'>Sharma · nobody lands in time</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Kapoor Steels&quot;, &quot;sku&quot;: &quot;GP-SHEET&quot;, &quot;qty&quot;: 50, &quot;due&quot;: 2, &quot;price&quot;: 63000}'>Kapoor · others would wait</button>
+  </div>
+
+  <form id="f" novalidate>
+    <div class="field">
+      <label for="customer">Customer</label>
+      <input id="customer" name="customer" placeholder="Sharma Constructions" autocomplete="organization" required>
+    </div>
+    <div class="field">
+      <label for="sku">Item</label>
+      <select id="sku" name="sku" required>
+        <option value="" disabled selected>Choose from your sheet</option>
+        <option value="HR-COIL">HR-COIL · HR Coil 2.5mm</option>
+        <option value="MS-ANGLE">MS-ANGLE · MS Angle 50x50x5</option>
+        <option value="CR-COIL">CR-COIL · CR Coil 1.0mm</option>
+        <option value="WIRE-ROD">WIRE-ROD · Wire Rod 5.5mm</option>
+        <option value="TMT-12">TMT-12 · TMT Rebar 12mm</option>
+        <option value="MS-PLATE">MS-PLATE · MS Plate 10mm</option>
+        <option value="ISMB-200">ISMB-200 · ISMB 200 H-Beam</option>
+        <option value="GP-SHEET">GP-SHEET · GP Sheet 0.8mm</option>
+      </select>
+    </div>
+    <div class="two">
+      <div class="field">
+        <label for="qty">Quantity</label>
+        <div class="unit"><input id="qty" name="qty" type="number" inputmode="decimal" min="0.1" step="0.1" placeholder="25" required><span>MT</span></div>
+      </div>
+      <div class="field">
+        <label for="due">Needed by</label>
+        <input id="due" name="due" type="date" required>
+      </div>
+    </div>
+    <div class="field">
+      <label for="price">Price agreed (optional)</label>
+      <div class="unit"><span>₹</span><input id="price" name="price" type="number" inputmode="numeric" min="0" step="100" placeholder="55,000"><span>per MT</span></div>
+    </div>
+    <div class="two">
+      <div class="field">
+        <label for="tier">Customer</label>
+        <select id="tier" name="tier">
+          <option value="regular" selected>Regular</option>
+          <option value="key">Key account</option>
+          <option value="priority">Never waits</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="urgency">This order</label>
+        <select id="urgency" name="urgency">
+          <option value="normal" selected>Normal</option>
+          <option value="rush">Rush</option>
+          <option value="flexible">Can wait a few days</option>
+        </select>
+      </div>
+    </div>
+    <div class="err" id="err" aria-live="polite"></div>
+    <button type="submit" id="go">Check what I can promise</button>
+  </form>
+
+  <div class="sent" id="sent">
+    <b id="sentmsg">Sent to the bot.</b> The answer arrives in the chat.
+    <pre id="payload"></pre>
+    <button type="button" id="copy" style="margin-top:10px;padding:12px;font-size:15px">📋 Copy order</button>
+    <div class="sub" style="margin-top:8px">If no answer arrives, paste this into the chat with the bot - it understands it.</div>
+  </div>
+  <div class="sub" id="dbg" style="margin-top:14px;font-family:ui-monospace,monospace;font-size:11.5px"></div>
+</div>
+
+<script>
+(function(){
+  var tg = window.Telegram && window.Telegram.WebApp;
+  // A Mini App opened from a KEYBOARD button gets no initData on purpose
+  // (its channel back is sendData), so presence is judged by the platform
+  // the container reports, never by initData.
+  var inTelegram = !!(tg && tg.platform && tg.platform !== "unknown");
+  if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
+  if (!inTelegram) document.getElementById("preview").classList.add("on");
+  // What the container reports, shown only when the page is opened with
+  // ?debug (a live-verification aid, never the customer's view).
+  var dbg = document.getElementById("dbg");
+  var debug = /[?&]debug/.test(location.search);
+  function say(line) { if (debug) dbg.textContent = (tg ? "platform=" + tg.platform + " v" + tg.version + " initData=" + (tg.initData ? tg.initData.length : 0) : "no Telegram object") + " · " + line; }
+  say("ready");
+
+  document.getElementById("copy").addEventListener("click", function () {
+    var json = document.getElementById("payload").textContent;
+    var done = function () { say("copied - paste it to the bot"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(json).then(done, function () { say("copy blocked - select the text and copy"); });
+    } else { say("copy unavailable - select the text and copy"); }
+  });
+
+  // Default the date to a week out - the common ask - so one tap less.
+  var due = document.getElementById("due");
+  var d = new Date(); d.setDate(d.getDate() + 7);
+  due.valueAsDate = d;
+  due.min = new Date().toISOString().slice(0, 10);
+
+  var form = document.getElementById("f"), err = document.getElementById("err");
+
+  // Demo presets (rendered only for demo orgs): tap to prefill, then submit
+  // as usual. "due" is days from today so the stories keep working.
+  var presets = document.querySelectorAll(".presets button");
+  for (var i = 0; i < presets.length; i++) {
+    presets[i].addEventListener("click", function () {
+      var p = JSON.parse(this.getAttribute("data-preset"));
+      form.customer.value = p.customer;
+      form.sku.value = p.sku;
+      form.qty.value = p.qty;
+      var when = new Date(); when.setDate(when.getDate() + (p.due || 7));
+      form.due.valueAsDate = when;
+      form.price.value = p.price == null ? "" : p.price;
+      form.tier.value = p.tier || "regular";
+      form.urgency.value = p.urgency || "normal";
+      err.textContent = "";
+    });
+  }
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var customer = form.customer.value.trim();
+    var sku = form.sku.value;
+    var qty = parseFloat(form.qty.value);
+    var dueVal = form.due.value;
+    var price = form.price.value ? parseFloat(form.price.value) : null;
+    if (!customer) { err.textContent = "Who is the order for?"; form.customer.focus(); return; }
+    if (!sku) { err.textContent = "Pick the item from your sheet."; form.sku.focus(); return; }
+    if (!(qty > 0)) { err.textContent = "Quantity in MT, more than zero."; form.qty.focus(); return; }
+    if (!dueVal) { err.textContent = "When does the customer need it?"; form.due.focus(); return; }
+    err.textContent = "";
+    // The whole order travels as one payload. Keyboard-button Mini Apps hand
+    // it straight to the bot (sendData, up to 4 KB); Telegram closes the app.
+    var payload = { type: "order", customer: customer, sku: sku, qty: qty, due: dueVal,
+                    price: price, tier: form.tier.value, urgency: form.urgency.value };
+    var json = JSON.stringify(payload);
+    document.getElementById("payload").textContent = json;
+    document.getElementById("sent").classList.add("on");
+    document.getElementById("go").disabled = true;
+    if (inTelegram) {
+      try {
+        // sendData hands the payload to the bot and closes the Mini App;
+        // the explicit close is a belt-and-braces for clients that linger.
+        tg.sendData(json);
+        say("sendData called");
+        setTimeout(function () { try { tg.close(); } catch (e) {} }, 600);
+      } catch (e) {
+        say("sendData threw: " + e);
+        document.getElementById("sentmsg").textContent = "Could not send automatically.";
+        document.getElementById("go").disabled = false;
+      }
+    } else {
+      say("not inside a Telegram Mini App container - use Copy order");
+      document.getElementById("sentmsg").textContent = "Not sent (not inside Telegram).";
+    }
+  });
+})();
+</script>
