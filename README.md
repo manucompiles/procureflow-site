@@ -13,7 +13,10 @@ site/
   index.html            the landing page: the pitch story, outcomes not machinery
   demo/                 (later) the artifacts as real pages: control-tower demo, engine lab
   app/order/<token>/    (generated per org) the Telegram Mini App order form; unlisted path,
-                        SKU list baked at deploy time, result sent to the bot via sendData
+                        SKU list baked at deploy time, result sent to the bot via sendData.
+                        Orgs with DEMO_PRESETS=1 in their .env also get a muted row of
+                        scenario chips (one per ATP verdict, on their own data) that prefill
+                        the form - demo-only, never on a real customer's page
 ```
 
 Rules that apply here as everywhere: steel-first examples, sell outcomes never "AI", no em
