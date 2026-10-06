@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProcureFlow</title>
+<meta name="description" content="A procurement control tower for steel distributors. It watches your stock, speaks up before a shelf runs empty, and never spends a rupee without your tap.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --ground:#EEF1F4; --paper:#F7F9FB; --ink:#101820; --ink-2:#3B4650; --muted:#6B7682;
+    --rule:rgba(16,24,32,.14); --hot:#D9480F; --hot-ink:#FFFFFF; --ok:#1F6F5C;
+    --phone-bg:#0E1621; --phone-card:#182533; --phone-ink:#E7ECF0; --phone-muted:#8696A6;
+    --phone-btn:#1F2E3D; --phone-link:#64B5EF; --phone-pre:rgba(0,0,0,.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F141A; --paper:#151C24; --ink:#E6EBEF; --ink-2:#C2CAD2; --muted:#8A95A0;
+      --rule:rgba(230,235,239,.16); --hot:#FF6A2B; --hot-ink:#15100C; --ok:#4FB596;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F141A; --paper:#151C24; --ink:#E6EBEF; --ink-2:#C2CAD2; --muted:#8A95A0;
+    --rule:rgba(230,235,239,.16); --hot:#FF6A2B; --hot-ink:#15100C; --ok:#4FB596;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);
+    font:17px/1.6 "Source Serif 4",Georgia,"Times New Roman",serif}
+  a{color:inherit}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 22px}
+  h1,h2,h3{font-family:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+    letter-spacing:-.01em;text-wrap:balance;margin:0}
+  h1{font-size:clamp(38px,5.4vw,64px);line-height:1.02;font-weight:700}
+  h2{font-size:clamp(28px,3.4vw,40px);line-height:1.1;font-weight:700}
+  h3{font-size:20px;line-height:1.25;font-weight:700}
+  p{margin:0;max-width:62ch}
+  .eyebrow{font-family:"Bricolage Grotesque",sans-serif;font-size:12.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);font-weight:700}
+  .mono{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+
+  /* top bar */
+  .top{display:flex;justify-content:space-between;align-items:center;padding:22px 0;border-bottom:1px solid var(--rule)}
+  .brand{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em;text-decoration:none}
+  .brand b{color:var(--hot)}
+  .top nav{display:flex;gap:22px;font-family:"Bricolage Grotesque",sans-serif;font-size:14.5px;font-weight:500}
+  .top nav a{text-decoration:none;color:var(--ink-2)}
+  .top nav a:hover{color:var(--ink)}
+  @media (max-width:640px){.top nav{display:none}}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;padding:64px 0 56px}
+  @media (max-width:900px){.hero{grid-template-columns:1fr;gap:34px;padding:44px 0}}
+  .hero .lede{font-size:21px;line-height:1.5;color:var(--ink-2);margin-top:22px}
+  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:30px;background:var(--hot);color:var(--hot-ink);
+    font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:16px;padding:14px 22px;border-radius:6px;text-decoration:none}
+  .cta:hover{filter:brightness(1.06)}
+  .cta-note{display:block;margin-top:12px;font-size:14.5px;color:var(--muted)}
+
+  /* the phone: the product is the imagery */
+  .phone{background:var(--phone-bg);border-radius:22px;padding:14px 12px 16px;box-shadow:0 18px 50px rgba(0,0,0,.28);
+    color:var(--phone-ink);font-size:14px;line-height:1.45;max-width:420px;justify-self:end;width:100%}
+  @media (max-width:900px){.phone{justify-self:start}}
+  .phead{display:flex;justify-content:space-between;align-items:baseline;color:var(--phone-muted);
+    font-family:"Bricolage Grotesque",sans-serif;font-size:12.5px;padding:2px 6px 12px}
+  .phead b{color:var(--phone-ink);font-size:14px}
+  .bub{background:var(--phone-card);border-radius:12px;padding:9px 12px;margin-top:8px}
+  .bub .t{font-weight:600}
+  .bub pre{margin:7px 0 0;background:var(--phone-pre);border-radius:8px;padding:8px 10px;overflow-x:auto;
+    font:12.5px/1.5 "JetBrains Mono",ui-monospace,monospace;color:#CFE3F3}
+  .bub .tm{display:block;text-align:right;font-size:10.5px;color:var(--phone-muted);margin-top:4px}
+  .btns{display:flex;gap:6px;margin-top:8px}
+  .btns span{flex:1;background:var(--phone-btn);color:var(--phone-link);border-radius:8px;text-align:center;
+    font:600 12.5px "Bricolage Grotesque",sans-serif;padding:8px 6px}
+  .hot-time{color:var(--hot);font-weight:700}
+
+  /* sections */
+  section{padding:64px 0;border-top:1px solid var(--rule)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+  @media (max-width:820px){.grid2{grid-template-columns:1fr;gap:28px}}
+  .stack{display:grid;gap:16px}
+  .lead{font-size:19px;color:var(--ink-2)}
+
+  /* the priced problem - a ledger */
+  .ledger{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;font-size:15px}
+  .ledger .row{display:grid;grid-template-columns:1fr auto;gap:18px;padding:10px 0;border-bottom:1px solid var(--rule)}
+  .ledger .row:last-child{border-bottom:0}
+  .ledger .k{color:var(--ink-2)}
+  .ledger .v{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ledger .bill .v{color:var(--hot);font-weight:600}
+
+  /* the bathtub chart */
+  .chart{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:16px 18px 10px}
+  .chart svg{width:100%;height:auto;display:block}
+  .chart .cap{font-size:13.5px;color:var(--muted);margin-top:8px}
+
+  /* one morning - a clock */
+  .clock{display:grid;grid-template-columns:96px 1fr;gap:0 22px}
+  .clock .time{font-family:"JetBrains Mono",monospace;font-weight:600;font-size:18px;color:var(--hot);padding:16px 0;border-top:1px solid var(--rule)}
+  .clock .what{padding:16px 0;border-top:1px solid var(--rule)}
+  .clock .what b{font-family:"Bricolage Grotesque",sans-serif}
+
+  /* control + compounding: plain statements */
+  .say{font-family:"Bricolage Grotesque",sans-serif;font-size:clamp(22px,2.6vw,30px);line-height:1.25;font-weight:700;max-width:22ch}
+  .list{display:grid;gap:12px;padding:0;margin:0;list-style:none}
+  .list li{padding-left:22px;position:relative}
+  .list li::before{content:"";position:absolute;left:0;top:.62em;width:10px;height:2px;background:var(--hot)}
+
+  /* journey - four acts (a real sequence, so numbering carries meaning) */
+  .acts{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  @media (max-width:980px){.acts{grid-template-columns:1fr 1fr}}
+  @media (max-width:560px){.acts{grid-template-columns:1fr}}
+  .act{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:18px}
+  .act .n{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--muted)}
+  .act h3{margin:6px 0 8px}
+  .act p{font-size:15.5px;color:var(--ink-2)}
+
+  /* contact */
+  .contact{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;background:var(--paper);
+    border:1px solid var(--rule);border-radius:12px;padding:28px}
+  @media (max-width:720px){.contact{grid-template-columns:1fr}}
+  .contact .ways{display:flex;flex-wrap:wrap;gap:12px}
+  .ways a{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:15px;text-decoration:none;
+    border:1.5px solid var(--ink);border-radius:6px;padding:11px 16px}
+  .ways a.primary{background:var(--hot);border-color:var(--hot);color:var(--hot-ink)}
+  footer{padding:30px 0 50px;color:var(--muted);font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  footer a{color:var(--muted)}
+  :focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#">Procure<b>Flow</b></a>
+    <nav aria-label="Sections">
+      <a href="#problem">The problem</a>
+      <a href="#morning">One morning</a>
+      <a href="#control">Control</a>
+      <a href="#journey">Getting started</a>
+      <a href="#contact">Talk to us</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow">For steel distributors</div>
+      <h1 style="margin-top:14px">Your best employee never sleeps, never forgets, never quits.</h1>
+      <p class="lede">Every distributor has one person who carries the business in their head: what is in the
+        godown, which orders are due, which mill delivers late. When that person is on leave, the business is
+        blind. ProcureFlow is that person's memory and discipline, made permanent, speaking to you on the phone
+        you already carry.</p>
+      <a class="cta" href="#contact">See one morning, live</a>
+      <span class="cta-note">A two-minute demo on your own numbers. Nothing to install.</span>
+    </div>
+
+    <div class="phone" aria-label="What the morning message looks like">
+      <div class="phead"><b>ProcureFlow</b><span>Mon, 08:00</span></div>
+      <div class="bub">
+        <div class="t">HR Coil 2.5mm breaks its buffer in 9 days.</div>
+        <pre>buy   580 MT
+from  SAIL HR @ 54,000
+cap   ₹3.13 Cr
+by    Thu 09 Oct  (place-by)
+need  Sat 18 Oct</pre>
+        Cheapest mill that still lands in time. Jindal is faster but ₹23 L dearer, and you have the days.
+        <span class="tm">08:01</span>
+      </div>
+      <div class="btns"><span>✅ Approve</span><span>❌ Reject</span></div>
+      <div class="bub">
+        <div class="t">PO-2026-015 landed this morning → sheet updated</div>
+        <pre>item  HR-COIL
+recv  580/580  ✓
+stat  delivered</pre>
+        Loop closed. <span class="tm">Sat 08:02</span>
+      </div>
+    </div>
+  </div>
+
+  <section id="problem">
+    <div class="grid2">
+      <div class="stack">
+        <div class="eyebrow">The problem, priced</div>
+        <h2>Stock-outs are silent, and they bill you twice.</h2>
+        <p class="lead">Reordering runs on memory, and memory has no alarm. One true story from a godown near
+          Delhi, in the numbers it actually happened in.</p>
+        <p>40 MT of MS Angle left, selling 10 MT a day, Delhi Metro Rail expecting 15 MT this week. The reorder
+          was missed by four days, so the fastest truck now arrives <em>after</em> the shelf is empty.</p>
+      </div>
+      <div class="stack">
+        <div class="ledger" aria-label="What a missed reorder costs">
+          <div class="row"><span class="k">On the shelf</span><span class="v">40 MT</span></div>
+          <div class="row"><span class="k">Leaving every day</span><span class="v">10 MT</span></div>
+          <div class="row"><span class="k">Committed this week (Delhi Metro Rail)</span><span class="v">15 MT</span></div>
+          <div class="row"><span class="k">Fastest truck, ordered today</span><span class="v">7 days</span></div>
+          <div class="row"><span class="k">Shelf empty in</span><span class="v">4 days</span></div>
+          <div class="row bill"><span class="k">Bill one: the lost sale, a flagship customer trying a competitor</span><span class="v">15 MT</span></div>
+          <div class="row bill"><span class="k">Bill two: the panic buy at a premium, wrong mill, capital locked a month</span><span class="v">+₹4 L</span></div>
+        </div>
+        <div class="chart" aria-label="Stock on the shelf over the next two weeks">
+          <svg viewBox="0 0 520 190" role="img" aria-labelledby="bt">
+            <title id="bt">MS Angle on the shelf, next fourteen days: the floor is crossed on day 2 and the shelf is empty on day 4; the earliest truck lands on day 7</title>
+            <line x1="46" y1="150" x2="500" y2="150" stroke="var(--rule)" stroke-width="1"/>
+            <line x1="46" y1="20" x2="46" y2="150" stroke="var(--rule)" stroke-width="1"/>
+            <line x1="46" y1="96" x2="500" y2="96" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4"/>
+            <text x="500" y="92" text-anchor="end" font-family="JetBrains Mono" font-size="11" fill="var(--muted)">floor 20 MT</text>
+            <polyline points="46,42 110,69 174,96 238,123 302,150" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+            <polyline points="302,150 400,150 440,150" fill="none" stroke="var(--hot)" stroke-width="2.5"/>
+            <polyline points="440,150 500,34" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-dasharray="5 4"/>
+            <circle cx="302" cy="150" r="4.5" fill="var(--hot)"/>
+            <circle cx="440" cy="150" r="4.5" fill="var(--ok)"/>
+            <text x="46" y="38" font-family="JetBrains Mono" font-size="11" fill="var(--muted)">40 MT</text>
+            <text x="302" y="172" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--hot)">day 4: empty</text>
+            <text x="440" y="172" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--ok)">day 7: truck</text>
+            <text x="46" y="172" font-family="JetBrains Mono" font-size="11" fill="var(--muted)">today</text>
+          </svg>
+          <div class="cap">Three days of empty shelf between the red dot and the green one. That gap is the whole business of ProcureFlow.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="idea">
+    <div class="grid2">
+      <div class="stack">
+        <div class="eyebrow">What it is</div>
+        <h2>A control tower on top of what you already use.</h2>
+        <p class="lead">Not an ERP. Nothing to migrate to. Nothing new to learn.</p>
+      </div>
+      <div class="stack">
+        <p>Your stock stays in your Excel. Your orders stay yours. Your people keep working exactly as today.
+          ProcureFlow sits on top: it reads, watches, projects every item forward, and speaks up <em>before</em>
+          trouble, on the phone you already carry.</p>
+        <p class="say">We don't replace your tools. We give them a brain and a voice.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="morning">
+    <div class="stack" style="margin-bottom:28px">
+      <div class="eyebrow">How it works</div>
+      <h2>8:00 AM, every day, without being asked.</h2>
+      <p class="lead">Told as a clock, because that is how it runs.</p>
+    </div>
+    <div class="clock">
+      <div class="time">08:00</div>
+      <div class="what">It reads your sheet and simulates every item's future: steady sales going out, committed
+        orders due, trucks coming in. Every item, every morning, the way your best buyer would if they had the
+        time.</div>
+      <div class="time">08:01</div>
+      <div class="what"><b>"HR Coil breaks its buffer in 9 days. Buy 580 MT from SAIL, cheapest that still lands
+        in time. Place by Thursday."</b> One tap: approve. Every recommendation shows its arithmetic; you can argue
+        with it, and it answers.</div>
+      <div class="time">Then</div>
+      <div class="what">It follows through. It hands the order to your buyer with the deadline, writes the PO row
+        into your sheet the moment they place it, chases the late truck, and tells you <span class="mono"
+        style="color:var(--ok)">delivered, loop closed</span>. When a mill refuses or quotes late, it compares
+        the others on the spot and lays out the real choice: switch, wait, or neither, with which customer waits
+        and for how long.</div>
+    </div>
+  </section>
+
+  <section id="control">
+    <div class="grid2">
+      <div class="stack">
+        <div class="eyebrow">Control</div>
+        <h2>It never spends a rupee without you.</h2>
+        <p class="lead">Control is the feature, not a limitation.</p>
+      </div>
+      <ul class="list">
+        <li>Every order waits for a human tap. No exceptions, ever, by design.</li>
+        <li>Autonomy is earned and rationed: when you trust it on routine repeat buys, you set limits per item,
+          and it acts only inside them.</li>
+        <li>You decide the important 20%. It stops needing you for the boring 80%.</li>
+        <li>Every decision stays in the chat as a record: what was proposed, what you chose, what it cost.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="compounding">
+    <div class="grid2">
+      <div class="stack">
+        <div class="eyebrow">The compounding</div>
+        <h2>Every order you run teaches it your business.</h2>
+        <p class="lead">Month 6 beats month 1. Year 2 beats year 1.</p>
+      </div>
+      <ul class="list">
+        <li>It learns your real sales rates: measurements, not estimates.</li>
+        <li>It learns which mills actually deliver on time, and plans around each one's real behaviour.</li>
+        <li>It remembers what only the owner knows today: "festival week the trucks jam", "that supplier slips in
+          monsoon". Told once, applied forever.</li>
+        <li>It becomes your most experienced employee, and it never resigns.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="journey">
+    <div class="stack" style="margin-bottom:28px">
+      <div class="eyebrow">Getting started</div>
+      <h2>From first call to "it just runs", in four acts.</h2>
+      <p class="lead">The honest answer to "how much work is this for me?"</p>
+    </div>
+    <div class="acts">
+      <div class="act"><div class="n">Act 1 · week 0</div><h3>We set it up for you</h3>
+        <p>We take whatever you have, Excel, Tally exports, your manager's memory, and build your sheet with you.
+          One sitting. Your workflow changes: zero.</p></div>
+      <div class="act"><div class="n">Act 2 · weeks 1 to 4</div><h3>It learns your rhythm</h3>
+        <p>The tower alerts, your people decide everything. A false alarm tunes a buffer; a near miss raises one.
+          Early noise is calibration, and we tune it with you.</p></div>
+      <div class="act"><div class="n">Act 3 · steady state</div><h3>It runs the routine</h3>
+        <p>Approve from your phone, your buyer places, it links and chases and closes every loop. Nothing falls
+          through. You look at it when it speaks, not all day.</p></div>
+      <div class="act"><div class="n">Act 4 · compounding</div><h3>It earns bigger jobs</h3>
+        <p>Learned numbers replace estimates, routine buys earn capped autonomy, and one board shows everyone the
+          warehouse and everything moving toward it.</p></div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="contact">
+      <div class="stack">
+        <div class="eyebrow">Talk to us</div>
+        <h2>See one morning on your own numbers.</h2>
+        <p class="lead">Bring your stock sheet, or just the three items you worry about most. Two minutes, live.</p>
+      </div>
+      <div class="ways">
+        <a class="primary" href="https://wa.me/91XXXXXXXXXX">WhatsApp Manish</a>
+        <a href="mailto:hello@procureflow.in">Email</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>ProcureFlow · a procurement control tower for steel distributors, North India.</span>
+    <span><a href="#">Top</a></span>
+  </footer>
+</div>
