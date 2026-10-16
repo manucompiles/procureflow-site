@@ -72,18 +72,22 @@
   <p class="sub">ProcureFlow Demo (Manish) · one screen, then the bot checks what it can promise.</p>
   <div class="preview" id="preview">Design preview: outside Telegram this page shows what it would send instead of sending it.</div>
   <div class="presets"><span>demo scenarios · tap to prefill, then submit</span>
-    <button type="button" data-preset='{&quot;customer&quot;: &quot;Gupta Builders&quot;, &quot;sku&quot;: &quot;CR-COIL&quot;, &quot;qty&quot;: 100, &quot;due&quot;: 6, &quot;price&quot;: 66500}'>Gupta · plenty in stock</button>
-    <button type="button" data-preset='{&quot;customer&quot;: &quot;Sharma Constructions&quot;, &quot;sku&quot;: &quot;HR-COIL&quot;, &quot;qty&quot;: 150, &quot;due&quot;: 2, &quot;price&quot;: 56000, &quot;urgency&quot;: &quot;rush&quot;}'>Sharma rush · eats the floor</button>
-    <button type="button" data-preset='{&quot;customer&quot;: &quot;Verma Infra&quot;, &quot;sku&quot;: &quot;HR-COIL&quot;, &quot;qty&quot;: 300, &quot;due&quot;: 6, &quot;price&quot;: 55500, &quot;tier&quot;: &quot;key&quot;}'>Verma · relies on a truck</button>
-    <button type="button" data-preset='{&quot;customer&quot;: &quot;Delhi Metro Rail&quot;, &quot;sku&quot;: &quot;MS-ANGLE&quot;, &quot;qty&quot;: 100, &quot;due&quot;: 14, &quot;price&quot;: 64000, &quot;tier&quot;: &quot;priority&quot;}'>Delhi Metro · short, a mill can land it</button>
-    <button type="button" data-preset='{&quot;customer&quot;: &quot;Sharma Constructions&quot;, &quot;sku&quot;: &quot;TMT-12&quot;, &quot;qty&quot;: 25, &quot;due&quot;: 1, &quot;price&quot;: 57000, &quot;urgency&quot;: &quot;rush&quot;}'>Sharma · nobody lands in time</button>
-    <button type="button" data-preset='{&quot;customer&quot;: &quot;Kapoor Steels&quot;, &quot;sku&quot;: &quot;GP-SHEET&quot;, &quot;qty&quot;: 50, &quot;due&quot;: 2, &quot;price&quot;: 63000}'>Kapoor · others would wait</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Gupta Builders&quot;, &quot;sku&quot;: &quot;CR-COIL&quot;, &quot;qty&quot;: 100, &quot;due&quot;: 6, &quot;price&quot;: 66500, &quot;destination&quot;: &quot;Noida Sector 62 site&quot;, &quot;transport&quot;: 18000}'>Gupta · plenty in stock</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Sharma Constructions&quot;, &quot;sku&quot;: &quot;HR-COIL&quot;, &quot;qty&quot;: 150, &quot;due&quot;: 2, &quot;price&quot;: 56000, &quot;urgency&quot;: &quot;rush&quot;, &quot;destination&quot;: &quot;Gurugram yard&quot;, &quot;transport&quot;: 24000}'>Sharma rush · eats the floor</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Verma Infra&quot;, &quot;sku&quot;: &quot;HR-COIL&quot;, &quot;qty&quot;: 300, &quot;due&quot;: 6, &quot;price&quot;: 55500, &quot;tier&quot;: &quot;key&quot;, &quot;destination&quot;: &quot;Ghaziabad&quot;, &quot;transport&quot;: 36000}'>Verma · relies on a truck</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Delhi Metro Rail&quot;, &quot;sku&quot;: &quot;MS-ANGLE&quot;, &quot;qty&quot;: 100, &quot;due&quot;: 14, &quot;price&quot;: 64000, &quot;tier&quot;: &quot;priority&quot;, &quot;destination&quot;: &quot;DMRC depot, Mukundpur&quot;}'>Delhi Metro · short, a mill can land it</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Sharma Constructions&quot;, &quot;sku&quot;: &quot;TMT-12&quot;, &quot;qty&quot;: 25, &quot;due&quot;: 1, &quot;price&quot;: 57000, &quot;urgency&quot;: &quot;rush&quot;, &quot;destination&quot;: &quot;Gurugram yard&quot;}'>Sharma · nobody lands in time</button>
+    <button type="button" data-preset='{&quot;customer&quot;: &quot;Kapoor Steels&quot;, &quot;sku&quot;: &quot;GP-SHEET&quot;, &quot;qty&quot;: 50, &quot;due&quot;: 2, &quot;price&quot;: 63000, &quot;destination&quot;: &quot;Faridabad&quot;, &quot;transport&quot;: 9000}'>Kapoor · others would wait</button>
   </div>
 
   <form id="f" novalidate>
     <div class="field">
       <label for="customer">Customer</label>
       <input id="customer" name="customer" placeholder="Sharma Constructions" autocomplete="organization" required>
+    </div>
+    <div class="field">
+      <label for="destination">Deliver to (optional)</label>
+      <input id="destination" name="destination" placeholder="Ghaziabad yard" maxlength="80" autocomplete="off">
     </div>
     <div class="field">
       <label for="sku">Item</label>
@@ -109,9 +113,15 @@
         <input id="due" name="due" type="date" required>
       </div>
     </div>
-    <div class="field">
-      <label for="price">Price agreed (optional)</label>
-      <div class="unit"><span>₹</span><input id="price" name="price" type="number" inputmode="numeric" min="0" step="100" placeholder="55,000"><span>per MT</span></div>
+    <div class="two">
+      <div class="field">
+        <label for="price">Price agreed (optional)</label>
+        <div class="unit"><span>₹</span><input id="price" name="price" type="number" inputmode="numeric" min="0" step="100" placeholder="55,000"><span>per MT</span></div>
+      </div>
+      <div class="field">
+        <label for="transport">Transport (optional)</label>
+        <div class="unit"><span>₹</span><input id="transport" name="transport" type="number" inputmode="numeric" min="0" step="500" placeholder="18,000"></div>
+      </div>
     </div>
     <div class="two">
       <div class="field">
@@ -188,6 +198,8 @@
       var when = new Date(); when.setDate(when.getDate() + (p.due || 7));
       form.due.valueAsDate = when;
       form.price.value = p.price == null ? "" : p.price;
+      form.destination.value = p.destination || "";
+      form.transport.value = p.transport == null ? "" : p.transport;
       form.tier.value = p.tier || "regular";
       form.urgency.value = p.urgency || "normal";
       err.textContent = "";
@@ -200,6 +212,8 @@
     var qty = parseFloat(form.qty.value);
     var dueVal = form.due.value;
     var price = form.price.value ? parseFloat(form.price.value) : null;
+    var destination = form.destination.value.trim();
+    var transport = form.transport.value ? parseFloat(form.transport.value) : null;
     if (!customer) { err.textContent = "Who is the order for?"; form.customer.focus(); return; }
     if (!sku) { err.textContent = "Pick the item from your sheet."; form.sku.focus(); return; }
     if (!(qty > 0)) { err.textContent = "Quantity in MT, more than zero."; form.qty.focus(); return; }
@@ -208,7 +222,8 @@
     // The whole order travels as one payload. Keyboard-button Mini Apps hand
     // it straight to the bot (sendData, up to 4 KB); Telegram closes the app.
     var payload = { type: "order", customer: customer, sku: sku, qty: qty, due: dueVal,
-                    price: price, tier: form.tier.value, urgency: form.urgency.value };
+                    price: price, tier: form.tier.value, urgency: form.urgency.value,
+                    destination: destination || null, transport: transport };
     var json = JSON.stringify(payload);
     document.getElementById("payload").textContent = json;
     document.getElementById("sent").classList.add("on");

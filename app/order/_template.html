@@ -79,6 +79,10 @@
       <input id="customer" name="customer" placeholder="Sharma Constructions" autocomplete="organization" required>
     </div>
     <div class="field">
+      <label for="destination">Deliver to (optional)</label>
+      <input id="destination" name="destination" placeholder="Ghaziabad yard" maxlength="80" autocomplete="off">
+    </div>
+    <div class="field">
       <label for="sku">Item</label>
       <select id="sku" name="sku" required>
         <option value="" disabled selected>Choose from your sheet</option>
@@ -95,9 +99,15 @@
         <input id="due" name="due" type="date" required>
       </div>
     </div>
-    <div class="field">
-      <label for="price">Price agreed (optional)</label>
-      <div class="unit"><span>₹</span><input id="price" name="price" type="number" inputmode="numeric" min="0" step="100" placeholder="55,000"><span>per MT</span></div>
+    <div class="two">
+      <div class="field">
+        <label for="price">Price agreed (optional)</label>
+        <div class="unit"><span>₹</span><input id="price" name="price" type="number" inputmode="numeric" min="0" step="100" placeholder="55,000"><span>per MT</span></div>
+      </div>
+      <div class="field">
+        <label for="transport">Transport (optional)</label>
+        <div class="unit"><span>₹</span><input id="transport" name="transport" type="number" inputmode="numeric" min="0" step="500" placeholder="18,000"></div>
+      </div>
     </div>
     <div class="two">
       <div class="field">
@@ -174,6 +184,8 @@
       var when = new Date(); when.setDate(when.getDate() + (p.due || 7));
       form.due.valueAsDate = when;
       form.price.value = p.price == null ? "" : p.price;
+      form.destination.value = p.destination || "";
+      form.transport.value = p.transport == null ? "" : p.transport;
       form.tier.value = p.tier || "regular";
       form.urgency.value = p.urgency || "normal";
       err.textContent = "";
@@ -186,6 +198,8 @@
     var qty = parseFloat(form.qty.value);
     var dueVal = form.due.value;
     var price = form.price.value ? parseFloat(form.price.value) : null;
+    var destination = form.destination.value.trim();
+    var transport = form.transport.value ? parseFloat(form.transport.value) : null;
     if (!customer) { err.textContent = "Who is the order for?"; form.customer.focus(); return; }
     if (!sku) { err.textContent = "Pick the item from your sheet."; form.sku.focus(); return; }
     if (!(qty > 0)) { err.textContent = "Quantity in MT, more than zero."; form.qty.focus(); return; }
@@ -194,7 +208,8 @@
     // The whole order travels as one payload. Keyboard-button Mini Apps hand
     // it straight to the bot (sendData, up to 4 KB); Telegram closes the app.
     var payload = { type: "order", customer: customer, sku: sku, qty: qty, due: dueVal,
-                    price: price, tier: form.tier.value, urgency: form.urgency.value };
+                    price: price, tier: form.tier.value, urgency: form.urgency.value,
+                    destination: destination || null, transport: transport };
     var json = JSON.stringify(payload);
     document.getElementById("payload").textContent = json;
     document.getElementById("sent").classList.add("on");
