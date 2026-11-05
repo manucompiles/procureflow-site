@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>New order · %%ORG_NAME%%</title>
 <meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   /* Telegram hands the app its theme as CSS variables; outside Telegram
@@ -11,8 +12,8 @@
      follow the system theme so the page never renders half-styled. */
   :root{
     --bg:var(--tg-theme-bg-color,#F2F4F7); --card:var(--tg-theme-secondary-bg-color,#FFFFFF);
-    --ink:var(--tg-theme-text-color,#101820); --hint:var(--tg-theme-hint-color,#6B7682);
-    --link:var(--tg-theme-link-color,#2A7FD5); --btn:var(--tg-theme-button-color,#D9480F);
+    --ink:var(--tg-theme-text-color,#101820); --hint:var(--tg-theme-hint-color,#5F6A76);
+    --link:var(--tg-theme-link-color,#2A7FD5); --btn:var(--tg-theme-button-color,#C23F0C);
     --btn-ink:var(--tg-theme-button-text-color,#FFFFFF); --rule:rgba(128,128,128,.28);
     --bad:#C0392B;
   }
@@ -76,7 +77,10 @@
   <form id="f" novalidate>
     <div class="field">
       <label for="customer">Customer</label>
-      <input id="customer" name="customer" placeholder="Sharma Constructions" autocomplete="organization" required>
+      <input id="customer" name="customer" placeholder="Sharma Constructions" maxlength="80" autocomplete="organization" list="customers" required>
+      <datalist id="customers">
+        %%CUSTOMER_OPTIONS%%
+      </datalist>
     </div>
     <div class="field">
       <label for="destination">Deliver to (optional)</label>
@@ -111,7 +115,7 @@
     </div>
     <div class="two">
       <div class="field">
-        <label for="tier">Customer</label>
+        <label for="tier">Customer tier</label>
         <select id="tier" name="tier">
           <option value="regular" selected>Regular</option>
           <option value="key">Key account</option>
@@ -165,10 +169,16 @@
   });
 
   // Default the date to a week out - the common ask - so one tap less.
+  // Local calendar dates, never UTC: toISOString and valueAsDate read the UTC day, which
+  // between 00:00 and 05:30 IST is still yesterday (the default landed six days out).
+  function isoLocal(when) {
+    var m = when.getMonth() + 1, day = when.getDate();
+    return when.getFullYear() + "-" + (m < 10 ? "0" : "") + m + "-" + (day < 10 ? "0" : "") + day;
+  }
   var due = document.getElementById("due");
   var d = new Date(); d.setDate(d.getDate() + 7);
-  due.valueAsDate = d;
-  due.min = new Date().toISOString().slice(0, 10);
+  due.value = isoLocal(d);
+  due.min = isoLocal(new Date());
 
   var form = document.getElementById("f"), err = document.getElementById("err");
 
@@ -182,7 +192,7 @@
       form.sku.value = p.sku;
       form.qty.value = p.qty;
       var when = new Date(); when.setDate(when.getDate() + (p.due || 7));
-      form.due.valueAsDate = when;
+      form.due.value = isoLocal(when);
       form.price.value = p.price == null ? "" : p.price;
       form.destination.value = p.destination || "";
       form.transport.value = p.transport == null ? "" : p.transport;
@@ -204,10 +214,14 @@
     if (!sku) { err.textContent = "Pick the item from your sheet."; form.sku.focus(); return; }
     if (!(qty > 0)) { err.textContent = "Quantity in MT, more than zero."; form.qty.focus(); return; }
     if (!dueVal) { err.textContent = "When does the customer need it?"; form.due.focus(); return; }
+    if (price !== null && price < 0) { err.textContent = "Price per MT cannot be negative."; form.price.focus(); return; }
+    if (transport !== null && transport < 0) { err.textContent = "Transport cost cannot be negative."; form.transport.focus(); return; }
     err.textContent = "";
     // The whole order travels as one payload. Keyboard-button Mini Apps hand
     // it straight to the bot (sendData, up to 4 KB); Telegram closes the app.
-    var payload = { type: "order", customer: customer, sku: sku, qty: qty, due: dueVal,
+    // v is the payload's shape version (the bot reads 1): a form and a bot
+    // deployed apart fail with a plain message instead of misreading a field.
+    var payload = { v: 1, type: "order", customer: customer, sku: sku, qty: qty, due: dueVal,
                     price: price, tier: form.tier.value, urgency: form.urgency.value,
                     destination: destination || null, transport: transport };
     var json = JSON.stringify(payload);
@@ -229,6 +243,7 @@
     } else {
       say("not inside a Telegram Mini App container - use Copy order");
       document.getElementById("sentmsg").textContent = "Not sent (not inside Telegram).";
+      document.getElementById("go").disabled = false;   // the preview can try another scenario
     }
   });
 })();

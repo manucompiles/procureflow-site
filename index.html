@@ -3,13 +3,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ProcureFlow</title>
-<meta name="description" content="Stock and money visibility for steel distributors: what is on hand, what is coming in and going out, what is due, in a chat on your phone. It never picks a supplier, never spends a rupee, never writes a row without your tap.">
+<meta name="description" content="Stock visibility and follow-up for steel distributors: what is on hand, what is on the road, what is due, in a chat on your phone. Nothing moves without your tap.">
+<link rel="canonical" href="https://manudubey.in/procureflow-site/">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ProcureFlow">
+<meta property="og:description" content="Know what's moving. Never forget what's due. Stock visibility and follow-up for steel distributors, in a chat on your phone.">
+<meta property="og:url" content="https://manudubey.in/procureflow-site/">
+<meta property="og:image" content="https://manudubey.in/procureflow-site/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ProcureFlow">
+<meta name="twitter:description" content="Know what's moving. Never forget what's due. Stock visibility and follow-up for steel distributors.">
+<meta name="twitter:image" content="https://manudubey.in/procureflow-site/og.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
   :root{
-    --ground:#EEF1F4; --paper:#F7F9FB; --ink:#101820; --ink-2:#3B4650; --muted:#6B7682;
-    --rule:rgba(16,24,32,.14); --hot:#D9480F; --hot-ink:#FFFFFF; --ok:#1F6F5C;
+    --ground:#EEF1F4; --paper:#F7F9FB; --ink:#101820; --ink-2:#3B4650; --muted:#5F6A76;
+    --rule:rgba(16,24,32,.14); --hot:#C23F0C; --hot-ink:#FFFFFF; --ok:#1F6F5C;
     --phone-bg:#0E1621; --phone-card:#182533; --phone-ink:#E7ECF0; --phone-muted:#8696A6;
     --phone-btn:#1F2E3D; --phone-link:#64B5EF; --phone-pre:rgba(0,0,0,.28);
   }
@@ -24,6 +39,7 @@
     --rule:rgba(230,235,239,.16); --hot:#FF6A2B; --hot-ink:#15100C; --ok:#4FB596;
   }
   *{box-sizing:border-box}
+  figure{margin:0}
   body{margin:0;background:var(--ground);color:var(--ink);
     font:17px/1.6 "Source Serif 4",Georgia,"Times New Roman",serif}
   a{color:inherit}
@@ -67,6 +83,7 @@
   .bub .t{font-weight:600}
   .bub pre{margin:7px 0 0;background:var(--phone-pre);border-radius:8px;padding:8px 10px;overflow-x:auto;
     font:12.5px/1.5 "JetBrains Mono",ui-monospace,monospace;color:#CFE3F3}
+  .bub .l{margin-top:7px}
   .bub .tm{display:block;text-align:right;font-size:10.5px;color:var(--phone-muted);margin-top:4px}
   .btns{display:flex;gap:6px;margin-top:8px}
   .btns span{flex:1;background:var(--phone-btn);color:var(--phone-link);border-radius:8px;text-align:center;
@@ -82,10 +99,11 @@
 
   /* the priced problem - a ledger */
   .ledger{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;font-size:15px}
-  .ledger .row{display:grid;grid-template-columns:1fr auto;gap:18px;padding:10px 0;border-bottom:1px solid var(--rule)}
-  .ledger .row:last-child{border-bottom:0}
-  .ledger .k{color:var(--ink-2)}
-  .ledger .v{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ledger table{width:100%;border-collapse:collapse}
+  .ledger th,.ledger td{padding:10px 0;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top;font-weight:400}
+  .ledger tr:last-child th,.ledger tr:last-child td{border-bottom:0}
+  .ledger .k{color:var(--ink-2);padding-right:18px}
+  .ledger .v{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
   .ledger .bill .v{color:var(--hot);font-weight:600}
 
   /* the bathtub chart */
@@ -151,27 +169,32 @@
       <span class="cta-note">A two-minute demo on your own numbers. Nothing to install.</span>
     </div>
 
-    <div class="phone" aria-label="What the morning message looks like">
-      <div class="phead"><b>ProcureFlow</b><span>Mon, 08:00</span></div>
+    <figure class="phone" role="img" aria-label="What the morning message looks like">
+      <div class="phead"><b>ProcureFlow</b><span>4 Oct, 08:00</span></div>
+      <!-- The real card: what the bot sends for the demo seed on 2026-10-04,
+           line for line (tests/test_site_hero.py holds it to the code). -->
       <div class="bub">
-        <div class="t">HR Coil 2.5mm breaks its buffer in 9 days.</div>
-        <pre>buy   640 MT
-from  SAIL HR @ 54,000
-cap   ₹3.46 Cr
-by    Thu 09 Oct  (place-by)
-need  Sat 18 Oct</pre>
-        Sized for Verma's 60 MT due the day the shelf empties. On your list: SAIL 8 days, Jindal 5 days, Local Roller 10. You choose the mill; it tracks the rest.
+        <div class="t">🟠 <b>HR-COIL</b> · Order now</div>
+        <pre>runs out  2026-10-20
+need      640 MT landed by 2026-10-20
+orders    Verma Infra 60 MT due 2026-10-20
+floor     300 (safety_stock)</pre>
+        <div class="l">On your list:</div>
+        <pre>SAIL HR        9d+2   ₹54,000  order by 09 Oct
+Jindal HRC     5d+1   ₹58,000  order by 14 Oct</pre>
+        <div class="l">On date and price, SAIL HR comes out first.</div>
+        <div class="l">Floor 300 (safety_stock), sell-through 40 MT/day, 50 MT committed past the stock-out. Needs 640 MT landed by 2026-10-20. At SAIL HR's price that is ₹3.46 Cr.</div>
         <span class="tm">08:01</span>
       </div>
-      <div class="btns"><span>👍 I'm on it</span><span>🕓 Later</span></div>
+      <div class="btns"><span>👍 I'm on it</span><span>🕓 Not now</span></div>
       <div class="bub">
         <div class="t">PO-2026-015 landed this morning → sheet updated</div>
         <pre>item  HR-COIL
 recv  640/640  ✓
 stat  delivered</pre>
-        Loop closed. <span class="tm">Sat 08:02</span>
+        Loop closed. <span class="tm">15 Oct, 08:02</span>
       </div>
-    </div>
+    </figure>
   </div>
 
   <section id="problem">
@@ -185,16 +208,20 @@ stat  delivered</pre>
           was missed by four days, so the fastest truck now arrives <em>after</em> the shelf is empty.</p>
       </div>
       <div class="stack">
-        <div class="ledger" aria-label="What a missed reorder costs">
-          <div class="row"><span class="k">On the shelf</span><span class="v">40 MT</span></div>
-          <div class="row"><span class="k">Leaving every day</span><span class="v">10 MT</span></div>
-          <div class="row"><span class="k">Committed this week (Delhi Metro Rail)</span><span class="v">15 MT</span></div>
-          <div class="row"><span class="k">Fastest truck, ordered today</span><span class="v">7 days</span></div>
-          <div class="row"><span class="k">Shelf empty in</span><span class="v">4 days</span></div>
-          <div class="row bill"><span class="k">Bill one: the lost sale, a flagship customer trying a competitor</span><span class="v">15 MT</span></div>
-          <div class="row bill"><span class="k">Bill two: the panic buy at a premium, wrong mill, capital locked a month</span><span class="v">+₹4 L</span></div>
+        <div class="ledger">
+          <table aria-label="What a missed reorder costs">
+            <tbody>
+              <tr><th scope="row" class="k">On the shelf</th><td class="v">40 MT</td></tr>
+              <tr><th scope="row" class="k">Leaving every day</th><td class="v">10 MT</td></tr>
+              <tr><th scope="row" class="k">Committed this week (Delhi Metro Rail)</th><td class="v">15 MT</td></tr>
+              <tr><th scope="row" class="k">Fastest truck, ordered today</th><td class="v">7 days</td></tr>
+              <tr><th scope="row" class="k">Shelf empty in</th><td class="v">4 days</td></tr>
+              <tr class="bill"><th scope="row" class="k">Bill one: the lost sale, a flagship customer trying a competitor</th><td class="v">15 MT</td></tr>
+              <tr class="bill"><th scope="row" class="k">Bill two: the panic buy at a premium, wrong mill, capital locked a month</th><td class="v">+₹4 L</td></tr>
+            </tbody>
+          </table>
         </div>
-        <div class="chart" aria-label="Stock on the shelf over the next two weeks">
+        <figure class="chart">
           <svg viewBox="0 0 520 190" role="img" aria-labelledby="bt">
             <title id="bt">MS Angle on the shelf, next fourteen days: the floor is crossed on day 2 and the shelf is empty on day 4; the earliest truck lands on day 7</title>
             <line x1="46" y1="150" x2="500" y2="150" stroke="var(--rule)" stroke-width="1"/>
@@ -211,8 +238,8 @@ stat  delivered</pre>
             <text x="440" y="172" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--ok)">day 7: truck</text>
             <text x="46" y="172" font-family="JetBrains Mono" font-size="11" fill="var(--muted)">today</text>
           </svg>
-          <div class="cap">Three days of empty shelf between the red dot and the green one. That gap is the whole business of ProcureFlow.</div>
-        </div>
+          <figcaption class="cap">Three days of empty shelf between the red dot and the green one. That gap is the whole business of ProcureFlow.</figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -245,7 +272,7 @@ stat  delivered</pre>
         orders due, trucks coming in. Every item, every morning, the way your best buyer would if they had the
         time.</div>
       <div class="time">08:01</div>
-      <div class="what"><b>"HR Coil runs short in 9 days. 640 MT covers it and Verma's order; order by Thursday to land in time. On your list: SAIL, Jindal, Local Roller."</b> You choose the mill. Tap "I'm on it, from Jindal" and it tracks the rest.</div>
+      <div class="what"><b>"HR Coil runs out on 20 Oct. 640 MT landed by then covers it and Verma's 60 MT. On your list: SAIL HR, 9 days at 54,000, order by the 9th; Jindal HRC, 5 days at 58,000, by the 14th."</b> You choose the mill. One tap says you are on it, the next says from whom, and it tracks the rest.</div>
       <div class="time">Then</div>
       <div class="what">It follows through. It hands the order to your buyer with the deadline, writes the PO row
         into your sheet the moment they place it, chases the late truck, and tells you <span class="mono"
@@ -263,8 +290,8 @@ stat  delivered</pre>
         <p class="lead">Control is the feature, not a limitation.</p>
       </div>
       <ul class="list">
-        <li>It never chooses a supplier for you, never spends, never writes a row without your tap. No exceptions, by design.</li>
-        <li>It asks when a payment is due and when a truck is late, so nobody has to remember.</li>
+        <li>It never spends a rupee and never writes a row without your tap. No exceptions, by design. Whom to buy from is your call; it lays out the arithmetic.</li>
+        <li>It asks when a truck is late and when an order must leave, so nobody has to remember. Payment reminders at 30 and 60 days are next.</li>
         <li>Every decision stays in the chat as a record: what was proposed, what you chose, what it cost.</li>
       </ul>
     </div>
@@ -278,11 +305,10 @@ stat  delivered</pre>
         <p class="lead">Month 6 beats month 1. Year 2 beats year 1.</p>
       </div>
       <ul class="list">
-        <li>It learns your real sales rates: measurements, not estimates.</li>
-        <li>It records which mills delivered when they promised, as a plain fact you can check before you ring them.</li>
-        <li>It remembers what only the owner knows today: "festival week the trucks jam", "that supplier slips in
-          monsoon". Told once, applied forever.</li>
-        <li>It remembers every promise made to you and by you, and asks on the day.</li>
+        <li>It works from your real numbers: your sell-through, the orders in your sheet, the trucks on the road.</li>
+        <li>It writes down what every mill quoted and refused, so the next call starts from facts, not memory.</li>
+        <li>It remembers the truck that is due and the order that must leave, and asks on the day.</li>
+        <li>Coming next: payment reminders at 30 and 60 days, and plain-word questions about your stock, orders and payments.</li>
       </ul>
     </div>
   </section>
@@ -298,14 +324,14 @@ stat  delivered</pre>
         <p>We take whatever you have, Excel, Tally exports, your manager's memory, and build your sheet with you.
           One sitting. Your workflow changes: zero.</p></div>
       <div class="act"><div class="n">Act 2 · weeks 1 to 4</div><h3>It learns your rhythm</h3>
-        <p>The tower alerts, your people decide everything. A false alarm tunes a buffer; a near miss raises one.
+        <p>It alerts, your people decide everything. A false alarm tunes a buffer; a near miss raises one.
           Early noise is calibration, and we tune it with you.</p></div>
       <div class="act"><div class="n">Act 3 · steady state</div><h3>It runs the routine</h3>
-        <p>Say "I'm on it" from your phone, your buyer places, it links and chases and closes every loop. Nothing falls
+        <p>Take it with one tap from your phone, your buyer places, it links and chases and closes every loop. Nothing falls
           through. You look at it when it speaks, not all day.</p></div>
       <div class="act"><div class="n">Act 4 · compounding</div><h3>It earns bigger jobs</h3>
-        <p>Ask it anything about your stock, orders and payments in plain words, and it shows everyone the
-          warehouse and everything moving toward it.</p></div>
+        <p>Coming next: ask it what is in, what is on the road and what is due, and later in plain words.
+          Every answer is a chat message, not a dashboard.</p></div>
     </div>
   </section>
 
@@ -324,7 +350,7 @@ stat  delivered</pre>
   </section>
 
   <footer>
-    <span>ProcureFlow · stock and money visibility for steel distributors, North India.</span>
+    <span>ProcureFlow · stock visibility and follow-up for steel distributors, North India.</span>
     <span><a href="#">Top</a></span>
   </footer>
 </div>
