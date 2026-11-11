@@ -77,16 +77,13 @@
   <form id="f" novalidate>
     <div class="field">
       <label for="customer">Customer</label>
-      <input id="customer" name="customer" placeholder="Sharma Constructions" maxlength="80" autocomplete="organization" list="customers" required>
-      <datalist id="customers">
-        <option value="Delhi Metro Rail">
-        <option value="Gupta Builders">
-        <option value="Kapoor Steels">
-        <option value="Sharma Constructions">
-        <option value="Singla Fabricators">
-        <option value="Verma Infra">
-        <option value="as">
-      </datalist>
+      <!-- Free text on purpose. This page is public (GitHub Pages), so it
+           never carries the org's customer list. The bot matches what is
+           typed against the customers sheet on the server, forgiving case,
+           spacing and a longer or shorter spelling, and never guesses when
+           two lines fit. autocomplete="on" lets the buyer's
+           own phone remember names typed before, which stays on the phone. -->
+      <input id="customer" name="customer" placeholder="Sharma Constructions" maxlength="80" autocomplete="on" required>
     </div>
     <div class="field">
       <label for="destination">Deliver to (optional)</label>
