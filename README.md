@@ -1,7 +1,9 @@
 # site/ - the public face of ProcureFlow
 
 Source of truth for the public static site. Lives in this (private) repo and is mirrored to
-a public GitHub Pages repo by the deploy step, so one folder serves both.
+a public repo (manucompiles/procureflow-site) by the deploy step; Cloudflare deploys that repo as
+the Worker `live` at https://procureflow.manudubey.in (2026-11-13; `wrangler.jsonc`, `.assetsignore`).
+Not indexed: a noindex meta and `robots.txt`, which lets Meta's checkers in for the business profile.
 
 Plain HTML, no generator, no CMS: the landing page is also the design-gate artifact, and the
 only generated pages are the per-org forms, written by a small Python step in

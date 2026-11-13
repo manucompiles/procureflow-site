@@ -1,0 +1,7 @@
+// The public site as a Cloudflare Worker serving static files (procureflow.manudubey.in).
+// Mirrored with site/ to manucompiles/procureflow-site; Cloudflare deploys it on every push.
+{
+  "name": "live",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "." }
+}
